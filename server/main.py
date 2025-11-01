@@ -713,12 +713,15 @@ async def analyze_patient_data(patient_id: str, doctor_id: str = Depends(get_doc
 
 # --- 10. Server Runner ---
 
+from server.routes import auth, patient, doctor
+
+# Include routes
+app.include_router(auth.router, prefix="/auth")
+app.include_router(patient.router, prefix="/patient")
+app.include_router(doctor.router, prefix="/doctor")
+
+# Server Runner
 if __name__ == "__main__":
-    """
-    This allows you to run the server directly by running
-    `python main.py` in your terminal.
-    It runs on port 8000.
-    """
     print("--- Starting Main App FastAPI server on http://127.0.0.1:8000 ---")
     print("View API docs at http://127.0.0.1:8000/docs")
     print("Login as a DOCTOR: (doctor@example.com / doctorpass)")

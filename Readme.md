@@ -1,54 +1,60 @@
-#🩺 GlucoSense — AI-Driven Smart Health Assistant
-#🚀 Overview
+# GlucoSense
 
-GlucoSense is an AI-powered health monitoring and recommendation system designed for diabetic patients.
-It integrates data from smartwatch sensors and periodic health forms, analyzes it using a local ML-powered Brain, and then generates personalized health suggestions via an LLM, which are reviewed by a doctor-in-the-loop before reaching the user.
+## Project Structure
 
+```
+GlucoSense/
+├── .env
+├── requirements.txt
+├── mock_server.py (unchanged)
+├── README.md
+│
+├── server/
+│   ├── __init__.py
+│   ├── main.py              # Clean entry point
+│   ├── config.py            # All configuration
+│   ├── database.py          # MongoDB setup
+│   ├── models.py            # All Pydantic models
+│   ├── auth.py              # Authentication logic
+│   ├── ai_service.py        # AI/LLM integration
+│   ├── health_service.py    # Health data processing
+│   └── routes/
+│       ├── __init__.py
+│       ├── auth.py          # Auth endpoints
+│       ├── patient.py       # Patient endpoints
+│       └── doctor.py        # Doctor endpoints
+│
+└── models/ (kept for reference, not used in server)
+    ├── evaluator.py
+    ├── recommender.py
+    └── prompt.py
+```
 
-#Architecture
+## Setup Instructions
 
-┌────────────────────────────┐
-│  Smartwatch (Mocked Data)  │
-│  + Monthly User Form Data  │
-└─────────────┬──────────────┘
-              │
-              ▼
-┌────────────────────────────┐
-│   Data Aggregator Layer    │
-│  - collects hourly/daily    │
-│  - merges form data         │
-│  - outputs normalized JSON  │
-└─────────────┬──────────────┘
-              │
-              ▼
-┌────────────────────────────┐
-│     Brain / Processing     │
-│  - feature engineering      │
-│  - spike detection backend  │
-│  - ML model for risk score  │
-│  - attaches “comments”      │
-│  → produces daily insight   │
-└─────────────┬──────────────┘
-              │
-              ▼
-┌────────────────────────────┐
-│     Reasoning Layer (LLM)  │
-│  - builds contextual prompt │
-│  - interprets and generates │
-│    plain-language summary   │
-│  - outputs safe suggestions │
-└─────────────┬──────────────┘
-              │
-              ▼
-┌────────────────────────────┐
-│ Doctor Review Dashboard    │
-│  - verifies or edits advice │
-│  - stores approval status   │
-└─────────────┬──────────────┘
-              │
-              ▼
-┌────────────────────────────┐
-│    Final Output to User    │
-│  - approved suggestions     │
-│  - risk summary             │
-└────────────────────────────┘
+1. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+2. Run the mock server:
+   ```bash
+   python mock_server.py
+   ```
+
+3. Run the main server:
+   ```bash
+   python -m server.main
+   ```
+
+4. Access the API documentation:
+   - Mock Server: [http://127.0.0.1:8001/docs](http://127.0.0.1:8001/docs)
+   - Main Server: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+
+## Environment Variables
+
+Ensure the `.env` file is configured with the following:
+```
+MONGO_CONNECTION_STRING=<your_mongo_connection_string>
+GEMINI_API_KEY=<your_gemini_api_key>
+```
