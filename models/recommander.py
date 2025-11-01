@@ -4,18 +4,47 @@ from prompt import Recommendor_command
 from evaluator import evaluate 
 
 
-API_KEY='AIzaSyBqYJqqT33hQuwmWZWCzOtDrjUpqYgrSbQ'
+API_KEY='AIzaSyDkrK1EkbwCnvxFsGEBjeaeBtLDOHPljzE'
 
 
 def recommender(data, API_KEY=API_KEY):
   result= evaluate(data)
   genai.configure(api_key=API_KEY)
-  recommendor_command = Recommendor_command
+  recommendor_command = f"""
+{Recommendor_command}
+
+Now generate a personalized recommendation based on this:
+Result Summary:
+{result}
+
+User Data:
+{data}
+
+Output strictly in this Python dictionary format (no text or greeting outside JSON):
+
+{{
+  "Status": str,
+  "Summary": str,
+  "Observations": {{
+    "Positives": list,
+    "Concerns": list,
+    "Trends": list
+  }},
+  "Recommendations": {{
+    "Immediate_Actions": list,
+    "Lifestyle_Suggestions": list,
+    "Follow_Up_Advice": list,
+    "When_to_Seek_Care": list
+  }},
+  "Safe_Wellness_Tips": list,
+  "Disclaimer": "This analysis supports monitoring only and is not a medical diagnosis."
+}}
+"""
   print("reccomender working...")
   response_2 = genai.GenerativeModel("gemini-2.5-pro").generate_content(
       recommendor_command 
   )
-
+  
   print(response_2.text)
   return response_2.text
 
@@ -40,4 +69,6 @@ Lifestyle: Sedentary job, inconsistent sleep
 | 5 | Oct 28 – Nov 3 | 88 | 25 | 5.0 | 3600 | 1740 | 93 | 9 | 37.4 | 80.3 | Chest tightness (3 days) | 2 | 7 | 3 | 12.97, 77.59 |
 '''
 
-recommender(data)
+response = recommender(data)
+print(response)
+

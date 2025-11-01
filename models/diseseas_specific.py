@@ -1,12 +1,39 @@
 from google import genai
 from prompt import Disease_prompt
 
-API_KEY='AIzaSyBqYJqqT33hQuwmWZWCzOtDrjUpqYgrSbQ'
+API_KEY='AIzaSyDkrK1EkbwCnvxFsGEBjeaeBtLDOHPljzE'
 def Disease_specific_evaluator_and_recommender(data,API_KEY=API_KEY):
   print("working....")
   client = genai.Client(api_key=API_KEY)
 
-  prompt=Disease_prompt
+  prompt = f"""
+{Disease_prompt}
+
+Now evaluate the given patient data and return a JSON object in this exact format — 
+no extra text, no explanation, no markdown, just JSON:
+{{
+  "Overall_Status": str,
+  "Disease_Risks": {{
+    "Type2_Diabetes": {{"Risk_Percentage": float, "Level": str}},
+    "Tuberculosis": {{"Risk_Percentage": float, "Level": str}},
+    "Cardiovascular_Disease": {{"Risk_Percentage": float, "Level": str}}
+  }},
+  "Key_Findings": {{
+    "Main_Risk_Factors": list,
+    "Recent_Trends": list,
+    "Positive_Factors": list
+  }},
+  "Recommendation": {{
+    "Action_Required": str,
+    "Immediate_Actions": list,
+    "When_to_Seek_Urgent_Care": list
+  }},
+  "Disclaimer": "This analysis supports monitoring only and is not a medical diagnosis."
+}}
+
+Patient Data:
+{data}
+"""
   response = client.models.generate_content(
      model="gemini-2.5-pro",  
      contents=prompt,
