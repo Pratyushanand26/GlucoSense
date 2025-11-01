@@ -1,25 +1,24 @@
+from google import genai
+from prompt import Instruction
 
-import google.generativeai as genai
-from prompt import Recommendor_command
-from evaluator import evaluate 
+API_KEY="AIzaSyBqYJqqT33hQuwmWZWCzOtDrjUpqYgrSbQ"
+
+def evaluate(data ,  API_KEY=API_KEY):
+  print('evaluating...')
+  client = genai.Client(api_key=API_KEY)
 
 
-API_KEY='AIzaSyBqYJqqT33hQuwmWZWCzOtDrjUpqYgrSbQ'
+  instruction = Instruction
 
+  response = client.models.generate_content(
+  model="gemini-2.5-pro",
+  contents=instruction,)
 
-def recommender(data, API_KEY=API_KEY):
-  result= evaluate(data)
-  genai.configure(api_key=API_KEY)
-  recommendor_command = Recommendor_command
-  print("reccomender working...")
-  response_2 = genai.GenerativeModel("gemini-2.5-pro").generate_content(
-      recommendor_command 
-  )
+  print(response.text)
+  print(20*"-")
+  return response.text
 
-  print(response_2.text)
-  return response_2.text
-
-data='''Female, 45 years old
+"""data='''Female, 45 years old
 
 Height: 162 cm
 
@@ -40,4 +39,4 @@ Lifestyle: Sedentary job, inconsistent sleep
 | 5 | Oct 28 – Nov 3 | 88 | 25 | 5.0 | 3600 | 1740 | 93 | 9 | 37.4 | 80.3 | Chest tightness (3 days) | 2 | 7 | 3 | 12.97, 77.59 |
 '''
 
-recommender(data)
+evaluate(data)"""

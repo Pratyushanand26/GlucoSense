@@ -1,0 +1,1 @@
+genai.GenerativeModel("gemini-2.5-pro").generate_content
