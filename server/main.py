@@ -18,6 +18,7 @@ from bson import ObjectId
 # --- 0. Import your AI model ---
 # (I've placed your model code here)
 import google.generativeai as genai
+from fastapi.middleware.cors import CORSMiddleware
 
 # --- 1. Load Environment Variables & Config ---
 load_dotenv()  # Loads variables from .env file
@@ -32,7 +33,7 @@ token_auth_scheme = HTTPBearer()
 MOCK_SERVER_URL = "http://127.0.0.1:8001/api/v1/health/weekly-summary"
 
 # --- Gemini API Key ---
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+GEMINI_API_KEY ="AIzaSyBqYJqqT33hQuwmWZWCzOtDrjUpqYgrSbQ"
 if not GEMINI_API_KEY:
     print("Warning: GEMINI_API_KEY not found in .env file. 'evaluate' will fail.")
 else:
@@ -44,6 +45,14 @@ app = FastAPI(
     title="Main Application API",
     description="API for user auth, profile, daily check-ins, and doctor analysis.",
     version="2.0.0"
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # --- 2. Database Connection ---
@@ -212,14 +221,18 @@ async def get_current_user(token: HTTPAuthorizationCredentials = Depends(token_a
     """
     try:
         # Real app: decode JWT. Here: parse "fake-token::{user_id}::{role}"
-        user_id, role = token.credentials.split("::")[1:]
+        parts = token.credentials.split("::")
+        if len(parts) != 3:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token format")
+        
+        user_id, role = parts[1], parts[2]
         
         user = None
         if user_id == "doc-123" and role == "doctor":
             user = {"_id": user_id, "role": role} # Mock doctor user
         else:
-            if not ObjectId.is_valid(user_id):
-                 raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid user ID format")
+            # FIXED: Just query directly with the string user_id
+            # No need to validate as ObjectId since we're using UUIDs
             user = await users_collection.find_one({"_id": user_id})
 
         if not user:
@@ -231,6 +244,8 @@ async def get_current_user(token: HTTPAuthorizationCredentials = Depends(token_a
 
         return {"user_id": user_id, "role": role}
     
+    except HTTPException:
+        raise
     except Exception as e:
         print(f"Auth Error: {e}")
         raise HTTPException(
@@ -258,6 +273,8 @@ async def create_daily_record(user_id: str, checkin_data: DailyCheckIn, device_d
     NEW NAME: This was 'databasemock'.
     Merges check-in and device data and saves it to the 'daily_records' collection.
     """
+    from datetime import datetime  # Add this import at the top if not already there
+    
     print(f"[create_daily_record] Merging data for user {user_id}")
     
     # Create the final, merged record
@@ -269,10 +286,19 @@ async def create_daily_record(user_id: str, checkin_data: DailyCheckIn, device_d
         device_data=device_data
     )
     
-    await records_collection.insert_one(merged_record.dict(by_alias=True))
+    # Convert to dict and fix date fields for MongoDB
+    record_dict = merged_record.dict(by_alias=True)
+    
+    # Convert date objects to datetime objects for MongoDB
+    if isinstance(record_dict['date'], date):
+        record_dict['date'] = datetime.combine(record_dict['date'], datetime.min.time())
+    
+    if isinstance(record_dict['device_data']['date'], date):
+        record_dict['device_data']['date'] = datetime.combine(record_dict['device_data']['date'], datetime.min.time())
+    
+    await records_collection.insert_one(record_dict)
     print(f"[create_daily_record] Saved new record {merged_record.id} for user {user_id}")
     return merged_record
-
 #
 # --- YOUR EVALUATE FUNCTION ---
 #
@@ -288,7 +314,7 @@ def evaluate(data: str) -> str:
     
     try:
         # Initialize client here to ensure it uses the configured API key
-        client = genai.GenerativeModel(model_name="gemini-1.5-pro-latest")
+        client = genai.GenerativeModel(model_name="gemini-2.5-pro")
         
         # This is the prompt from your code
         Instruction = """
