@@ -1,6 +1,8 @@
 fastapi
 uvicorn[standard]
-google-generativeai
+motor
+pydantic[dotenv]
+passlib[bcrypt]
 pymongo
-requests
-python-dotenv
+httpx
+google-generativeai
