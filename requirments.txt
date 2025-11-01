@@ -2,8 +2,8 @@ fastapi
 uvicorn[standard]
 motor
 pydantic[dotenv]
+pydantic[email]
 passlib[bcrypt]
 pymongo
 httpx
 google-generativeai
-pydantic[email]

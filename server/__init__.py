@@ -1,1 +1,4 @@
-# This file marks the server directory as a Python package
+"""
+GlucoSense Health API Server Package
+"""
+__version__ = "2.0.0"
