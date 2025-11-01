@@ -68,6 +68,6 @@ async def get_insight(user_id: str = Depends(get_patient_user)):
         raise HTTPException(status_code=404, detail="No check-in data found")
     
     latest = records[0]
-    insight = generate_quick_insight(latest)
+    insight = await generate_quick_insight(latest)  # ✅ FIXED: Added await
     
     return {"date": latest['date'], "insight": insight}

@@ -92,3 +92,30 @@ async def analyze_patient(patient_id: str, doctor_id: str = Depends(get_doctor_u
     
     analysis = analyze_patient_health(profile, records)
     return AgentAnalysisResponse(patient_id=patient_id, analysis_text=analysis)
+
+# Add this import at the top
+from ..ai_service import analyze_patient_health, generate_recommendations
+
+# Add this new endpoint after the analyze endpoint
+@router.get("/patients/{patient_id}/recommend")
+async def recommend_for_patient(patient_id: str, doctor_id: str = Depends(get_doctor_user)):
+    """Generate AI recommendations for patient"""
+    print(f"[DOCTOR] {doctor_id} getting recommendations for {patient_id}")
+    
+    profile = await users_collection.find_one({"_id": patient_id})
+    if not profile:
+        raise HTTPException(status_code=404, detail="Patient not found")
+    
+    records = await get_user_records(patient_id)
+    if not records:
+        raise HTTPException(status_code=404, detail="No data available")
+    
+    # First analyze, then recommend
+    evaluation = await analyze_patient_health(profile, records)
+    recommendations = await generate_recommendations(profile, records, evaluation)
+    
+    return {
+        "patient_id": patient_id,
+        "evaluation": evaluation,
+        "recommendations": recommendations
+    }
