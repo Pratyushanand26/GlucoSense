@@ -131,32 +131,3 @@ class RecommendationsResponse(BaseModel):
     patient_id: str
     evaluation: str
     recommendations: str
-
-class HeartRate(BaseModel):
-    resting_hr: int
-    average_weekly_hr: int
-
-class HRV(BaseModel):
-    average_hrv: int
-
-class Sleep(BaseModel):
-    sleep_duration_hours: float
-
-class PhysicalActivity(BaseModel):
-    steps: int
-    calories_burned: int
-
-class SpO2(BaseModel):
-    average_spo2: float
-
-class SkinTemperature(BaseModel):
-    deviation_celsius: float
-
-class WeeklyMetric(BaseModel):
-    date: date
-    heart_rate: HeartRate
-    hrv: HRV
-    sleep: Sleep
-    activity: PhysicalActivity
-    spo2: SpO2
-    skin_temp: SkinTemperature

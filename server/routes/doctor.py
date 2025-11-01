@@ -3,9 +3,9 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException, Query
 from ..models import UserProfile, MergedDailyRecord, AgentAnalysisResponse, HealthSummary
 from ..auth import get_doctor_user
+from ..ai_service import analyze_patient_health, generate_recommendations
 from ..database import users_collection, records_collection
 from ..health_service import get_user_records, calculate_health_summary
-from ..ai_service import analyze_patient_health
 
 router = APIRouter(prefix="/api/v1/doctor", tags=["Doctor"])
 

@@ -57,7 +57,7 @@ Lifestyle:
 
     for i, record in enumerate(daily_records[:8], 1):
         checkin = record.get('checkin_data', {})
-        device = checkin.get('device_data', {})
+        device = record.get('device_data', {})  # ✅ CORRECT - device_data is at record level
         illness = checkin.get('illness_symptoms', {})
 
         illness_str = "No"
