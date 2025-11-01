@@ -56,3 +56,4 @@ async def get_doctor_user(current_user: Dict = Depends(get_current_user)) -> str
     if current_user["role"] != "doctor":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Requires doctor role")
     return current_user["user_id"]
+

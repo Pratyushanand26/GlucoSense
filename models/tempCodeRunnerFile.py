@@ -1,1 +1,1 @@
-genai.GenerativeModel("gemini-2.5-pro").generate_content
+print(type(response_2.text))

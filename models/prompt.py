@@ -102,12 +102,12 @@ Instruction="""
     - [Positive findings in friendly language]
     - [Metrics within healthy range]
 
-    ⚠️ **Worth Noting:**
+    **Worth Noting:**
     - [Areas showing changes but not urgent]
     - [Suggestions for self-monitoring]
 
     [IF APPLICABLE]
-    🔴 **Needs Attention:**
+     **Needs Attention:**
     - [Specific concerns requiring medical consultation]
     - [Why this matters for your health]
 
@@ -246,6 +246,8 @@ Recommendor_command='''
 
     Now generate response for this :
     :-{result}and{data}
+
+    output to the point do not talk un-neccessary things like greeting at start and etc, give short but effective bullete points
 '''
 
 Disease_prompt='''# SIMPLIFIED DISEASE RISK ASSESSMENT - INDIA SPECIFIC

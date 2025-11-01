@@ -116,3 +116,54 @@ async def recommend_for_patient(patient_id: str, doctor_id: str = Depends(get_do
         "evaluation": evaluation,
         "recommendations": recommendations
     }
+
+@router.get("/dashboard")
+async def get_doctor_dashboard(doctor_id: str = Depends(get_doctor_user)):
+    """Get doctor dashboard statistics"""
+    total_patients = await users_collection.count_documents({"role": "patient"})
+    
+    # Get patients with recent activity (last 7 days)
+    from datetime import datetime, timedelta
+    week_ago = datetime.now() - timedelta(days=7)
+    active_patients = await records_collection.distinct("user_id", {"date": {"$gte": week_ago}})
+    
+    # Get total check-ins
+    total_checkins = await records_collection.count_documents({})
+    
+    return {
+        "total_patients": total_patients,
+        "active_patients_last_week": len(active_patients),
+        "total_checkins": total_checkins
+    }
+
+@router.get("/patients/{patient_id}/timeline")
+async def get_patient_timeline(
+    patient_id: str,
+    days: int = Query(30, ge=1, le=365),
+    doctor_id: str = Depends(get_doctor_user)
+):
+    """Get patient health timeline for visualization"""
+    from datetime import datetime, timedelta
+    
+    start_date = datetime.now() - timedelta(days=days)
+    cursor = records_collection.find({
+        "user_id": patient_id,
+        "date": {"$gte": start_date}
+    }).sort("date", 1)
+    
+    records = await cursor.to_list(length=None)
+    
+    timeline = []
+    for record in records:
+        timeline.append({
+            "date": record["date"],
+            "heart_rate": record["device_data"]["heart_rate"]["resting_hr"],
+            "hrv": record["device_data"]["hrv"]["average_hrv"],
+            "sleep": record["device_data"]["sleep"]["sleep_duration_hours"],
+            "steps": record["device_data"]["activity"]["steps"],
+            "spo2": record["device_data"]["spo2"]["average_spo2"],
+            "energy": record["checkin_data"]["energy_level"],
+            "mood": record["checkin_data"]["mood_state"]
+        })
+    
+    return {"patient_id": patient_id, "timeline": timeline}
