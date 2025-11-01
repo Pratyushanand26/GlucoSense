@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+motor
+pydantic[dotenv]
+passlib[bcrypt]
+pymongo
+httpx
+google-generativeai
