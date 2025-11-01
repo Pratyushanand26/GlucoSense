@@ -93,9 +93,6 @@ async def analyze_patient(patient_id: str, doctor_id: str = Depends(get_doctor_u
     analysis = analyze_patient_health(profile, records)
     return AgentAnalysisResponse(patient_id=patient_id, analysis_text=analysis)
 
-# Add this import at the top
-from ..ai_service import analyze_patient_health, generate_recommendations
-
 # Add this new endpoint after the analyze endpoint
 @router.get("/patients/{patient_id}/recommend")
 async def recommend_for_patient(patient_id: str, doctor_id: str = Depends(get_doctor_user)):

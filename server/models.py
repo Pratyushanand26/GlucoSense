@@ -126,3 +126,8 @@ class HealthSummary(BaseModel):
     average_metrics: dict
     latest_weight_kg: Optional[float] = None
     illness_count: int
+
+class RecommendationsResponse(BaseModel):
+    patient_id: str
+    evaluation: str
+    recommendations: str

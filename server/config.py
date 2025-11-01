@@ -15,7 +15,7 @@ USERS_COLLECTION = "users"
 RECORDS_COLLECTION = "daily_records"
 
 # External APIs
-MOCK_SERVER_URL = "http://127.0.0.1:8001/api/v1/health/weekly-summary"
+MOCK_SERVER_URL = "http://127.0.0.1:8001/api/v1/health/get-weekly-summary"
 
 # AI Configuration
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyBqYJqqT33hQuwmWZWCzOtDrjUpqYgrSbQ")

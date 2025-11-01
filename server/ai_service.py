@@ -9,9 +9,11 @@ from .config import GEMINI_API_KEY
 import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent))
-from models.prompt import Instruction, Recommendor_command
+from models.prompt import Instruction, Recommendor_command, Disease_prompt
 
+# Configure Gemini API key globally
 genai.configure(api_key=GEMINI_API_KEY)
+
 
 class CustomEncoder(json.JSONEncoder):
     """JSON encoder for date and ObjectId"""
@@ -22,10 +24,9 @@ class CustomEncoder(json.JSONEncoder):
             return str(obj)
         return json.JSONEncoder.default(self, obj)
 
+
 def format_patient_data(baseline_profile: dict, daily_records: list) -> str:
     """Format patient data into readable text for AI"""
-    
-    # Extract baseline info
     profile_text = f"""
 Patient Profile:
 - Age: {baseline_profile.get('age')} years
@@ -48,23 +49,23 @@ Lifestyle:
 - Alcohol: {baseline_profile.get('lifestyle_factors', {}).get('alcohol_consumption', 'Unknown')}
 - Exercise: {baseline_profile.get('lifestyle_factors', {}).get('exercise_habits', 'Unknown')}
 """
-    
+
     # Format weekly records
     records_text = "\nWeekly Health Data:\n"
     records_text += "| Week | Date | Rest HR | HRV | Sleep | Steps | Calories | SpO₂ | Skin Temp | Weight | Illness | Energy | Soreness | Mood |\n"
     records_text += "|------|------|---------|-----|-------|-------|----------|------|-----------|--------|---------|--------|----------|------|\n"
-    
-    for i, record in enumerate(daily_records[:8], 1):  # Last 8 weeks max
-        device = record.get('device_data', {})
+
+    for i, record in enumerate(daily_records[:8], 1):
         checkin = record.get('checkin_data', {})
+        device = checkin.get('device_data', {})
         illness = checkin.get('illness_symptoms', {})
-        
+
         illness_str = "No"
         if illness.get('present'):
             desc = illness.get('description', 'Yes')
             duration = illness.get('duration_days', '')
             illness_str = f"{desc} ({duration} days)" if duration else desc
-        
+
         records_text += f"| {i} | {record.get('date', 'N/A')} | "
         records_text += f"{device.get('heart_rate', {}).get('resting_hr', 'N/A')} | "
         records_text += f"{device.get('hrv', {}).get('average_hrv', 'N/A')} | "
@@ -78,87 +79,103 @@ Lifestyle:
         records_text += f"{checkin.get('energy_level', 'N/A')}/10 | "
         records_text += f"{checkin.get('muscle_soreness', 'N/A')}/10 | "
         records_text += f"{checkin.get('mood_state', 'N/A')}/10 |\n"
-    
+
     return profile_text + records_text
 
+
+# ---------------- AI FUNCTIONS ---------------- #
+
 async def analyze_patient_health(baseline_profile: dict, daily_records: list) -> str:
-    """Analyze patient health data using Gemini AI with models/evaluator.py logic"""
+    """Analyze patient health using Gemini AI."""
     if not GEMINI_API_KEY:
         return "Error: AI model not configured"
-    
+
     try:
         print('[AI] Evaluating patient health...')
-        client = genai.Client(api_key=GEMINI_API_KEY)
-        
-        # Format data for AI
         formatted_data = format_patient_data(baseline_profile, daily_records)
-        
-        # Use prompt from models/prompt.py and inject data
         full_prompt = Instruction.replace("{data}", formatted_data)
-        
-        response = client.models.generate_content(
-            model="gemini-2.0-flash-exp",
-            contents=full_prompt
-        )
-        
+
+        model = genai.GenerativeModel("gemini-2.5-pro")
+        response = model.generate_content(full_prompt)
+
         print('[AI] Evaluation complete')
-        return response.text
-    
+        return response.text.strip()
+
     except Exception as e:
         print(f"[AI] Error: {e}")
         return f"Error: AI analysis failed - {e}"
 
+
 async def generate_recommendations(baseline_profile: dict, daily_records: list, evaluation_result: str) -> str:
-    """Generate recommendations using models/recommander.py logic"""
+    """Generate health recommendations using Gemini AI."""
     if not GEMINI_API_KEY:
         return "Error: AI model not configured"
-    
+
     try:
         print('[AI] Generating recommendations...')
-        client = genai.Client(api_key=GEMINI_API_KEY)
-        
-        # Format data
         formatted_data = format_patient_data(baseline_profile, daily_records)
-        
-        # Use Recommendor_command from models/prompt.py
         full_prompt = Recommendor_command.replace("{result}", evaluation_result).replace("{data}", formatted_data)
-        
-        response = client.models.generate_content(
-            model="gemini-2.0-flash-exp",
-            contents=full_prompt
-        )
-        
+
+        model = genai.GenerativeModel("gemini-2.5-pro")
+        response = model.generate_content(full_prompt)
+
         print('[AI] Recommendations generated')
-        return response.text
-    
+        return response.text.strip()
+
     except Exception as e:
         print(f"[AI] Error: {e}")
         return f"Error: Recommendation generation failed - {e}"
 
+
 async def generate_quick_insight(latest_record: dict) -> str:
-    """Generate quick insight from latest check-in"""
+    """Generate quick health insight."""
+    if not GEMINI_API_KEY:
+        return "Quick insights unavailable"
+
     try:
-        device = latest_record.get('device_data', {})
         checkin = latest_record.get('checkin_data', {})
+        device = checkin.get('device_data', {})
 
         prompt = f"""
-        Provide a brief 2–3 sentence friendly health insight based on today's data.
-        Focus on what's notable and give one actionable tip.
+Provide a brief 2–3 sentence friendly health insight based on today's data.
+Focus on what's notable and give one actionable tip.
 
-        Today's Metrics:
-        - Heart Rate: {device.get('heart_rate', {}).get('resting_hr')}
-        - Sleep: {device.get('sleep', {}).get('sleep_duration_hours')}
-        - Steps: {device.get('activity', {}).get('steps')}
-        - SpO₂: {device.get('spo2', {}).get('average_spo2')}
-        - Energy Level: {checkin.get('energy_level')}/10
-        - Mood: {checkin.get('mood_state')}/10
-        - Illness: {'Yes - ' + checkin.get('illness_symptoms', {}).get('description', '') if checkin.get('illness_symptoms', {}).get('present') else 'No'}
-        """
+Today's Metrics:
+- Heart Rate: {device.get('heart_rate', {}).get('resting_hr')} bpm
+- Sleep: {device.get('sleep', {}).get('sleep_duration_hours')} hours
+- Steps: {device.get('activity', {}).get('steps')}
+- SpO₂: {device.get('spo2', {}).get('average_spo2')}%
+- Energy Level: {checkin.get('energy_level')}/10
+- Mood: {checkin.get('mood_state')}/10
+- Illness: {'Yes - ' + checkin.get('illness_symptoms', {}).get('description', '') if checkin.get('illness_symptoms', {}).get('present') else 'No'}
+"""
 
         model = genai.GenerativeModel("gemini-2.5-pro")
         response = model.generate_content(prompt)
 
         return response.text.strip()
+
     except Exception as e:
         print("Error generating insight:", e)
         return "Unable to generate insight"
+
+
+async def disease_specific_analysis(baseline_profile: dict, daily_records: list) -> str:
+    """Disease-specific evaluation and recommendations."""
+    if not GEMINI_API_KEY:
+        return "Error: AI model not configured"
+
+    try:
+        print('[AI] Running disease-specific analysis...')
+        formatted_data = format_patient_data(baseline_profile, daily_records)
+        full_prompt = Disease_prompt.replace("{data}", formatted_data)
+
+        model = genai.GenerativeModel("gemini-2.5-pro")
+        response = model.generate_content(full_prompt)
+
+        print('[AI] Disease-specific analysis complete')
+        return response.text.strip()
+
+    except Exception as e:
+        print(f"[AI] Error: {e}")
+        return f"Error: Disease-specific analysis failed - {e}"
