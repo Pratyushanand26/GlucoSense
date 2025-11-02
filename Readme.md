@@ -23,7 +23,7 @@
 
 ## 🚀 Live Deployment
 
-**🌐 API Endpoint:** `http://13.62.57.143:8000/`
+**🌐 API Endpoint:** `https://api.bitcraft.site/`
 
 ### Demo Credentials
 
