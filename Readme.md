@@ -20,7 +20,7 @@ It allows patients to log daily health data (like glucose levels, sleep, heart r
 ---
 
 ## 🧱 Project Structure
-
+```bash
 glucosense/
 ├── Readme.md
 ├── mock_server.py # Local mock API for testing
@@ -73,7 +73,7 @@ glucosense/
 ├── doctor.py
 └── patient.py
 
-
+```
 ---
 
 ## ⚙️ Setup Instructions
