@@ -2,13 +2,14 @@
 import google.generativeai as genai
 from prompt import Recommendor_command
 from evaluator import evaluate 
+from uitls import extract_json_from_text
 
 
 API_KEY='AIzaSyDkrK1EkbwCnvxFsGEBjeaeBtLDOHPljzE'
 
 
 def recommender(data, API_KEY=API_KEY):
-  result= evaluate(data)
+  result,k= evaluate(data)
   genai.configure(api_key=API_KEY)
   recommendor_command = f"""
 {Recommendor_command}
@@ -44,11 +45,17 @@ Output strictly in this Python dictionary format (no text or greeting outside JS
   response_2 = genai.GenerativeModel("gemini-2.5-pro").generate_content(
       recommendor_command 
   )
-  
-  print(response_2.text)
-  return response_2.text
+  json_str = response_2.text
 
-data='''Female, 45 years old
+  result = extract_json_from_text(json_str)
+  if result:
+    pass
+  else:
+    print("No valid JSON extracted.")
+  print(result)
+  return result
+
+"""data='''Female, 45 years old
 
 Height: 162 cm
 
@@ -70,5 +77,5 @@ Lifestyle: Sedentary job, inconsistent sleep
 '''
 
 response = recommender(data)
-print(response)
+print(response)"""
 

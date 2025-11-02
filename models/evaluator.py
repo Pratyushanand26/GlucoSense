@@ -1,5 +1,6 @@
 from google import genai
 from prompt import Instruction
+from uitls import extract_json_from_text
 
 API_KEY="AIzaSyDkrK1EkbwCnvxFsGEBjeaeBtLDOHPljzE"
 
@@ -13,10 +14,15 @@ def evaluate(data ,  API_KEY=API_KEY):
   response = client.models.generate_content(
   model="gemini-2.5-pro",
   contents=f"{instruction}\n\nOutput the final analysis strictly in the following Python dictionary format in json format(no extra text outside JSON):\n\n{{\n  'STATUS': str,\n  'Evaluation Period': str,\n  'Current Status': str,\n  'What_We’re_Seeing': str,\n  'Key_Observations': {{\n      'Going_Well': list,\n      'Worth_Noting': list,\n      'Needs_Attention': list\n  }},\n  'Recommendations': {{\n      'Immediate_Actions': list,\n      'Monitoring_&_Follow_up': list,\n      'Professional_Consultation': list,\n      'When_to_Seek_Care': list\n  }}\n}}",)
-  print(type(response.text))
-  print(response.text)
-  print(20*"-")
-  return response.text
+
+  json_str = response.text
+
+  result = extract_json_from_text(json_str)
+  if result:
+    pass
+  else:
+    print("No valid JSON extracted.")
+  return response.text,result
 
 """data='''Female, 45 years old
 

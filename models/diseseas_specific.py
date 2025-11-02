@@ -1,5 +1,7 @@
 from google import genai
 from prompt import Disease_prompt
+from uitls import extract_json_from_text
+import json
 
 API_KEY='AIzaSyDkrK1EkbwCnvxFsGEBjeaeBtLDOHPljzE'
 def Disease_specific_evaluator_and_recommender(data,API_KEY=API_KEY):
@@ -38,11 +40,18 @@ Patient Data:
      model="gemini-2.5-pro",  
      contents=prompt,
   )
+  json_str = response.text
 
-  print(response.text)
-  return(response.text)
+  result = extract_json_from_text(json_str)
+  if result:
+    pass
+  else:
+    print("No valid JSON extracted.")
 
-data='''Male, 38 years old
+  return result
+  
+
+"""data='''Male, 38 years old
 Height: 170 cm
 Weight: 82 kg initially
 Genetic history: Hypertension (father)
@@ -60,4 +69,6 @@ Location: Delhi, India (28.61°N, 77.23°E)
 | 5 | Oct 28 – Nov 3 | 82 | 35 | 5.5 | 4900 | 1880 | 96 | 7 | 37.2 | 83.1 | No | 4 | 5 | 5 | 28.61, 77.23 |
 '''
 
-Disease_specific_evaluator_and_recommender(data)
+ans=Disease_specific_evaluator_and_recommender(data)
+print(ans)
+"""
