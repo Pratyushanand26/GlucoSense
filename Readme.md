@@ -38,6 +38,8 @@
 
 ## 🏗️ Architecture
 
+![WhatsApp Image 2025-11-02 at 13 29 58_9d3974ea](https://github.com/user-attachments/assets/dfe75859-fecd-4caa-93c6-6bac27199ab6)
+
 ```
 GlucoSense/
 ├── server/                 # FastAPI Backend
