@@ -23,7 +23,8 @@
 
 ## 🚀 Live Deployment
 
-**🌐 API Endpoint:** `https://api.bitcraft.site/`
+**🌐 API Endpoint:** `https://api.bitcraft.site/`,
+Access interactive docs: `https://api.bitcraft.site/docs`
 
 ### Demo Credentials
 
