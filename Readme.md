@@ -23,8 +23,7 @@
 
 ## 🚀 Live Deployment
 
-**🌐 API Endpoint:** `https://your-deployed-endpoint.com`  
-**📚 Interactive API Docs:** `https://your-deployed-endpoint.com/docs`
+**🌐 API Endpoint:** `http://13.62.57.143:8000/`
 
 ### Demo Credentials
 
