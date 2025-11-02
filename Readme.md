@@ -90,6 +90,7 @@ git clone https://github.com/pratyushanand26/GlucoSense.git
 ```bash
 cd GlucoSense
 ```
+
 Windows
 ```bash
 python -m venv venv
