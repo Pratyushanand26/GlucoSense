@@ -1,7 +1,7 @@
 <div align="center">
 
-# 🩺 **GlucoSense Health API**
-### _AI-Powered Health Monitoring for Diabetic Patients_
+# 🩺 **GlucoSense Health App**
+### _AI-Powered Health Monitoring for comman Diseas Patients_
 
 ![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.111+-009688?style=for-the-badge&logo=fastapi&logoColor=white)
@@ -14,7 +14,7 @@
 
 ## 🌟 Overview
 
-**GlucoSense** is an **AI-powered health monitoring platform** built for **diabetic patients and doctors**.  
+**GlucoSense** is an **AI-powered health monitoring platform** built for **comman diseas patients and doctors**.  
 It allows patients to log daily health data (like glucose levels, sleep, heart rate, and more) and helps doctors analyze trends using integrated **AI models** (Gemini / ML models) to provide personalized insights and recommendations.
 
 ---
@@ -85,10 +85,10 @@ Everything below works on **Windows, macOS, and Linux**.
 
 ### 🧩 1. Clone the Repository
 ```bash
-git clone https://github.com/pratyushanand26/glucosense.git
+git clone https://github.com/pratyushanand26/GlucoSense.git
 ```
 ```bash
-cd pratyushanand26-glucosense
+cd GlucoSense
 ```
 Windows
 ```bash
@@ -111,10 +111,7 @@ Use the following template
 MONGO_CONNECTION_STRING=mongodb://localhost:27017/glucosense
 GEMINI_API_KEY=your_gemini_api_key_here
 ```
-Run the Mock Server
-```bash
-python mock_server.py
-```
+
 Run the Main FastAPI Server
 
 Once your .env is configured and MongoDB is running
